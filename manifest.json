@@ -1,3 +1,6 @@
 {
-  "setup": "setup.mjs"
+  "namespace": "psy_melvorSoundFx",
+  "setup": "setup.mjs",
+  "icon": "assets/icon.png",
+  "load": ["src/html/templates.html"]
 }

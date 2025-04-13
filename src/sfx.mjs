@@ -7,7 +7,15 @@ export function playSound(url, skillname, skilltype) {
     let skillEnabled;
 
     // TODO: Fix unlisted skills
-    if(skillname == 'Township' || skillname == 'Farming' || skillname == 'Cartography'){
+    if(skillname == 'Township' ||
+        skillname == 'Farming' ||
+        skillname == 'Cartography' ||
+        skillname == 'Defence' ||
+        skillname == 'Attack' ||
+        skillname == 'Strength' ||
+        skillname == 'Slayer' ||
+        skillname == 'Prayer' ||
+        skillname == 'Ranged'){
         return;
     }
 

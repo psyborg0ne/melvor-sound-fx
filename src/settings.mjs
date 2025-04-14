@@ -15,7 +15,7 @@ export function initSettings()
     const settingsArrayArtisan = [];
 
     // Master volume
-    settingsGeneral.add({
+    settingsGeneral.add([{
       type: 'number',
       min: 0,
       max: 100,
@@ -23,7 +23,24 @@ export function initSettings()
       hint: 'Sets the master volume for all sounds | 0 to mute',
       default: 10,
       name: 'MasterVolume'
-    })
+    },
+    {
+      type: 'switch',
+      deafult: false,
+      label: 'Enable Sound Delay',
+      hint: 'Enable sound delay between skills | A sound will trigger from any action only after this delay has passed',
+      name: 'EnableSoundDelay'
+    },
+    {
+      type: 'number',
+      min: 1,
+      max: 10,
+      default: 1,
+      label: 'Sound Delay (in secs)',
+      hint: 'Delay between sounds (in seconds) | A sound will trigger from any action only after this delay has passed',
+      name: 'SoundDelay'
+    }
+    ])
 
     // Iterate skills and add to settings
     game.skills.forEach((skill) => {

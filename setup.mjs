@@ -1,4 +1,4 @@
-export async function setup({loadModule, onModsLoaded, patch, getResourceUrl, onInterfaceReady}){
+export async function setup({loadModule, patch, getResourceUrl, onInterfaceReady}){
   // Load and initialize settings
   const opt = await loadModule('src/settings.mjs');
   const sfx = await loadModule('src/sfx.mjs');

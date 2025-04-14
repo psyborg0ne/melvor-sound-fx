@@ -2,6 +2,8 @@
 export function playSound(url, skillname, skilltype) {
     const ctx = mod.getContext(import.meta);
     const mVol = ctx.settings.section("General").get("MasterVolume");
+    const delayEnabled = ctx.settings.section("General").get("EnableSoundDelay");
+    const sDelay = ctx.settings.section("General").get("SoundDelay");
 
     let skillCategory;
     let skillEnabled;
@@ -39,14 +41,27 @@ export function playSound(url, skillname, skilltype) {
 
     if (mVol > 0 && skillEnabled)
     {
-        try{
+        const currentTime = Date.now();
+        const lastSoundTime = ctx.characterStorage.getItem('lastSoundTime') || 0;
+
+        if (delayEnabled && ((currentTime - lastSoundTime) <= (sDelay * 1000)))
+        {
+            // Early return in case delay is enabled and not enough time passed
+            return;
+        }
+
+        try
+        {
             let audio = new Audio(url);
             audio.volume = mVol / 100;
             audio.play();
+            ctx.characterStorage.setItem('lastSoundTime', currentTime);
             console.log('Playing sound:', url);
-          }
-          catch (e) {
+        }
+        catch (e)
+        {
             console.log('Error playing sound:', e);
-          }
+        }
+
     }
 }

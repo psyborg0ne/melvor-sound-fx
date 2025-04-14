@@ -15,7 +15,8 @@ export function playSound(url, skillname, skilltype) {
         skillname == 'Strength' ||
         skillname == 'Slayer' ||
         skillname == 'Prayer' ||
-        skillname == 'Ranged'){
+        skillname == 'Ranged' ||
+        skillname == 'Hitpoints'){
         return;
     }
 

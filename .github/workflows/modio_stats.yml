@@ -2,8 +2,8 @@ name: Update README with mod.io stats
 
 on:
   schedule:
-    - cron: "0 * * * *" # every hour
-  workflow_dispatch: # allow manual runs
+    - cron: "0 0 * * SUN" # Every Sunday @00:00
+  workflow_dispatch: # Allow manual runs
 
 jobs:
   update-readme:
@@ -65,12 +65,9 @@ jobs:
             /<!-- MODIO:START -->/ {
               print
               print ""
-              print "| 👍 Positive | 👎 Negative | % Positive | Rating |"
-              print "|------------|-------------|------------|--------|"
-              print "| " ru " | " rn " | " rpp " | " rdt " |"
-              print ""
-              print "- Downloads: " d
-              print "- Subscribers: " s
+              print "| 💾 Downloads | 👤 Subscribers | 👍 Positive | 👎 Negative | % Positive | Rating |"
+              print "|------------|-------------|------------|------------|------------|--------|"
+              print "| " d " | " s " | " ru " | " rn " | " rpp " | " rdt " |"
               print ""
               print "_Last updated: " u "_"
               found=1
@@ -81,7 +78,6 @@ jobs:
           ' README.md > README.new
       
           mv README.new README.md
-
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5 # prebuilt wrapper

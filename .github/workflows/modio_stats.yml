@@ -21,13 +21,13 @@ jobs:
       - name: Extract values
         id: extract
         run: |
-          downloads=$(jq '.stats.downloads_total' mod.json)
-          subscribers=$(jq '.stats.subscribers_total' mod.json)
+          downloads=$(jq -re '.stats.downloads_total' mod.json)
+          subscribers=$(jq -r '.stats.subscribers_total' mod.json)
           updated=$(date -u +"%Y-%m-%d %H:%M UTC")
-          rate_pos=$(jq '.stats.ratings_positive' mod.json)
-          rate_neg=$(jq '.stats.ratings_negative' mod.json)
-          rate_pos_percent=$(jq '.stats.ratings_percentage_positive' mod.json)
-          rate_disp_text=$(jq '.stats.ratings_display_text' mod.json)
+          rate_pos=$(jq -r '.stats.ratings_positive' mod.json)
+          rate_neg=$(jq -r '.stats.ratings_negative' mod.json)
+          rate_pos_percent=$(jq -r '.stats.ratings_percentage_positive' mod.json)
+          rate_disp_text=$(jq -r '.stats.ratings_display_text' mod.json)
 
           echo "downloads=$downloads" >> $GITHUB_OUTPUT
           echo "subscribers=$subscribers" >> $GITHUB_OUTPUT
@@ -46,15 +46,35 @@ jobs:
           rate_neg="${{ steps.extract.outputs.rate_neg }}"
           rate_pos_percent="${{ steps.extract.outputs.rate_pos_percent }}"
           rate_disp_text="${{ steps.extract.outputs.rate_disp_text }}"
-
+      
           # Replace content between the markers
-          awk -v d="$downloads" -v s="$subscribers" -v u="$updated" -v ru="$rate_pos" -v rn="$rate_neg" -v rpp="$rate_pos_percent" -v rdt="$rate_disp_text"'
-            /<!-- MODIO:START -->/ {print;print "|👍|👎|％|Rating|\n|---|---|---|---|\n" "|" ru "|" rn "|" rpp "|" rdt "|\n""Downloads: " d "\nSubscribers: " s "\n_Last updated: " u "_";found=1;next}
+          awk -v d="$downloads" \
+              -v s="$subscribers" \
+              -v u="$updated" \
+              -v ru="$rate_pos" \
+              -v rn="$rate_neg" \
+              -v rpp="$rate_pos_percent" \
+              -v rdt="$rate_disp_text" '
+            /<!-- MODIO:START -->/ {
+              print
+              print ""
+              print "| 👍 Positive | 👎 Negative | % Positive | Rating |"
+              print "|------------|-------------|------------|--------|"
+              print "| " ru " | " rn " | " rpp " | " rdt " |"
+              print ""
+              print "- Downloads: " d
+              print "- Subscribers: " s
+              print ""
+              print "_Last updated: " u "_"
+              found=1
+              next
+            }
             /<!-- MODIO:END -->/ {found=0}
             !found {print}
           ' README.md > README.new
-
+      
           mv README.new README.md
+
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5 # prebuilt wrapper

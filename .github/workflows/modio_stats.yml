@@ -17,6 +17,13 @@ jobs:
         run: |
           curl -s "https://api.mod.io/v1/games/2869/mods/4868206?api_key=${{ secrets.MODIO_API_KEY }}" \
             -o mod.json
+      
+      - name: Debug API response
+        run: |
+          echo "----- RAW RESPONSE -----"
+          cat mod.json
+          echo "------------------------"
+          jq '.' mod.json
 
       - name: Extract values
         id: extract

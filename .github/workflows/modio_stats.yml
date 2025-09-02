@@ -1,0 +1,62 @@
+name: Update README with mod.io stats
+
+on:
+  schedule:
+    - cron: "0 * * * *" # every hour
+  workflow_dispatch: # allow manual runs
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch mod.io stats
+        run: |
+          curl -s "https://api.mod.io/v1/games/2869/mods/4868206?api_key=${{ secrets.MODIO_API_KEY }}" \
+            -o mod.json
+
+      - name: Extract values
+        id: extract
+        run: |
+          downloads=$(jq '.stats.downloads_total' mod.json)
+          subscribers=$(jq '.stats.subscribers_total' mod.json)
+          updated=$(date -u +"%Y-%m-%d %H:%M UTC")
+          rate_pos=$(jq '.stats.ratings_positive' mod.json)
+          rate_neg=$(jq '.stats.ratings_negative' mod.json)
+          rate_pos_percent=$(jq '.stats.ratings_percentage_positive' mod.json)
+          rate_disp_text=$(jq '.stats.ratings_display_text' mod.json)
+
+          echo "downloads=$downloads" >> $GITHUB_OUTPUT
+          echo "subscribers=$subscribers" >> $GITHUB_OUTPUT
+          echo "updated=$updated" >> $GITHUB_OUTPUT
+          echo "rate_pos=$rate_pos" >> $GITHUB_OUTPUT
+          echo "rate_neg=$rate_neg" >> $GITHUB_OUTPUT
+          echo "rate_pos_percent=$rate_pos_percent" >> $GITHUB_OUTPUT
+          echo "rate_disp_text=$rate_disp_text" >> $GITHUB_OUTPUT
+
+      - name: Update README
+        run: |
+          downloads="${{ steps.extract.outputs.downloads }}"
+          subscribers="${{ steps.extract.outputs.subscribers }}"
+          updated="${{ steps.extract.outputs.updated }}"
+          rate_pos="${{ steps.extract.outputs.rate_pos }}"
+          rate_neg="${{ steps.extract.outputs.rate_neg }}"
+          rate_pos_percent="${{ steps.extract.outputs.rate_pos_percent }}"
+          rate_disp_text="${{ steps.extract.outputs.rate_disp_text }}"
+
+          # Replace content between the markers
+          awk -v d="$downloads" -v s="$subscribers" -v u="$updated" -v ru="$rate_pos" -v rn="$rate_neg" -v rpp="$rate_pos_percent" -v rdt="$rate_disp_text"'
+            /<!-- MODIO:START -->/ {print;print "|👍|👎|％|Rating|\n|---|---|---|---|\n" "|" ru "|" rn "|" rpp "|" rdt "|\n""Downloads: " d "\nSubscribers: " s "\n_Last updated: " u "_";found=1;next}
+            /<!-- MODIO:END -->/ {found=0}
+            !found {print}
+          ' README.md > README.new
+
+          mv README.new README.md
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5 # prebuilt wrapper
+        with:
+          commit_message: "Update README with latest mod.io stats"

@@ -45,8 +45,8 @@ export function initSettings()
     // Iterate skills and add to settings
     game.skills.forEach((skill) => {
       let skillType = Object.getPrototypeOf(Object.getPrototypeOf(skill)).constructor.name;
-      let skillname = getLangString(`SKILL_NAME_${skill.localID}`);
-      let skillicon = assets.getURI(`assets/media/skills/${skillname}/${skillname}.png`);
+      let skillname = skill.name;
+      let skillicon = skill.media;
       let skillSetting = {};
 
       // Create skill html element
